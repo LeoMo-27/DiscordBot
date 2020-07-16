@@ -1,0 +1,15 @@
+
+__pycache__/
+Pruebas/
+.vscode/
+song.mp3
+imagenes.py
+*.log
+.env
+*.env
+*.pdf
+*.txt
+*.py[cod]
+*$py.class
+*.idea
+*.DS_STORE
