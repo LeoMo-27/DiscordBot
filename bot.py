@@ -1,3 +1,5 @@
+
+
 import os
 import discord
 import youtube_dl
@@ -17,17 +19,34 @@ token = os.getenv("DISCORD_TOKEN")
 GUILD = os.getenv("DISCORD_GUILD")
 bot = commands.Bot(command_prefix="!")
 song_queue = []
-FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
-YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist':'True'}
+FFMPEG_OPTIONS = {
+        'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+        'options': '-vn',
+    }
+YDL_OPTIONS = {
+        'format': 'bestaudio/best',
+        'extractaudio': True,
+        'audioformat': 'mp3',
+        'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
+        'restrictfilenames': True,
+        'noplaylist': True,
+        'nocheckcertificate': True,
+        'ignoreerrors': False,
+        'logtostderr': False,
+        'quiet': True,
+        'no_warnings': True,
+        'default_search': 'auto',
+        'source_address': '0.0.0.0',
+    }
+
 
 # Busca el video en youtube y retorna la informacion de este
 def search(arg):
     try: requests.get("".join(arg))
     except: arg = " ".join(arg)
     else: arg = "".join(arg)
-    with youtube_dl.YoutubeDL(YDL_OPTIONS ) as ydl:
+    with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
         info = ydl.extract_info(f"ytsearch:{arg}", download=False)['entries'][0]
-        
     return {'source': info['formats'][0]['url'], 'title': info['title'], "url": info["webpage_url"]}
 
 # Reproduce siguiente cancion en la cola
@@ -131,7 +150,7 @@ async def nada_malo(ctx):
     await ctx.send("La verdad \nhttps://image-cdn.neatoshop.com/styleimg/74380/none/darkgray/default/388391-20;1529751611u.jpg")
 
 
-@bot.command(pass_context=True)
+@bot.command(pass_context=True, aliases = ["p"])
 async def play(ctx, *arg):
     channel = ctx.message.author.voice.channel
 
@@ -156,6 +175,25 @@ async def play(ctx, *arg):
             await ctx.send(f"Añadido a la cola\n{url}")
     else:
         await ctx.send("No estay en un canal!")
+
+
+@bot.command(pass_context = True, aliases = ["q"])
+async def queue(ctx):
+    
+    colores = [discord.Colour.red(), discord.Colour.blue(), discord.Colour.magenta(), discord.Colour.purple(), discord.Colour.green()]
+    if len(song_queue) == 0:
+        ctx.send(f"No hay cola")
+    else:
+        contenido = []
+        for element in song_queue:
+            contenido.append(element["title"])
+        string = ""
+        for i in range(0, len(contenido)):
+            string += f"{i + 1}.- {contenido[i]}\n"
+        indice = randint(0, len(colores))
+        embed = discord.Embed(colour = colores[indice])
+        embed.add_field(name = "Queue 🎵:", value = f"{string}")
+        await ctx.send(content = None, embed = embed)
 
 
 @bot.command(pass_contex = True)
@@ -211,6 +249,18 @@ async def FUBUKI(ctx):
         voice.volume = 2
         voice.is_playing()
 
+@bot.command(pass_context = True)
+async def boquita(ctx):
+    channel = ctx.message.author.voice.channel
+    voice = get(bot.voice_clients, guild=ctx.guild)
+    if voice and voice.is_connected():
+        await voice.move_to(channel)
+    else:
+        voice = await channel.connect()
+    if not voice.is_playing():
+        voice.play(discord.FFmpegPCMAudio("audio\koroneboquita.mp3"))
+        voice.is_playing()
+
 
 @bot.command(pass_context = True)
 async def hm(ctx):
@@ -222,6 +272,32 @@ async def hm(ctx):
         voice = await channel.connect()
     if not voice.is_playing():
         voice.play(discord.FFmpegPCMAudio("audio\hm.mp3"))
+        voice.is_playing()
+
+
+@bot.command(pass_context = True)
+async def ahoy(ctx):
+    channel = ctx.message.author.voice.channel
+    voice = get(bot.voice_clients, guild=ctx.guild)
+    if voice and voice.is_connected():
+        await voice.move_to(channel)
+    else:
+        voice = await channel.connect()
+    if not voice.is_playing():
+        voice.play(discord.FFmpegPCMAudio("audio\marine.mp3"))
+        voice.is_playing()
+
+
+@bot.command(pass_context = True)
+async def botan(ctx):
+    channel = ctx.message.author.voice.channel
+    voice = get(bot.voice_clients, guild=ctx.guild)
+    if voice and voice.is_connected():
+        await voice.move_to(channel)
+    else:
+        voice = await channel.connect()
+    if not voice.is_playing():
+        voice.play(discord.FFmpegPCMAudio("audio\shishiro.mp3"))
         voice.is_playing()
 
 
@@ -240,6 +316,21 @@ async def scatman(ctx):
 
 
 @bot.command(pass_context = True)
+async def yahallo(ctx):
+    channel = ctx.message.author.voice.channel
+    voice = get(bot.voice_clients, guild=ctx.guild)
+    video = search("https://www.youtube.com/watch?v=jyijnQFn5lA")
+    if voice and voice.is_connected():
+        await voice.move_to(channel)
+    else:
+        voice = await channel.connect()
+    if not voice.is_playing():
+        voice.play(discord.FFmpegPCMAudio(video["source"], **FFMPEG_OPTIONS))
+        voice.is_playing()
+
+
+
+@bot.command(pass_context = True)
 async def speingo(ctx):
     channel = ctx.message.author.voice.channel
     voice = get(bot.voice_clients, guild=ctx.guild)
@@ -249,6 +340,19 @@ async def speingo(ctx):
         voice = await channel.connect()
     if not voice.is_playing():
         voice.play(discord.FFmpegPCMAudio("audio\speingo.mp3"))
+        voice.is_playing()
+
+
+@bot.command(pass_context = True)
+async def patas(ctx):
+    channel = ctx.message.author.voice.channel
+    voice = get(bot.voice_clients, guild=ctx.guild)
+    if voice and voice.is_connected():
+        await voice.move_to(channel)
+    else:
+        voice = await channel.connect()
+    if not voice.is_playing():
+        voice.play(discord.FFmpegPCMAudio("audio\patas.mp3"))
         voice.is_playing()
 
 
@@ -264,8 +368,8 @@ async def cazuela(ctx):
     await ctx.send("Sendo maricon el cacas jaja, si o no gente?")
 
 
-@bot.command(name="feliz_jueves")
-async def jueves(ctx):
+@bot.command(pass_context = True, aliases = ["fj"])
+async def feliz_jueves(ctx):
     await ctx.send("https://cdn.discordapp.com/attachments/341395373581008896/731967502174912592/unknown.png")
 
 
